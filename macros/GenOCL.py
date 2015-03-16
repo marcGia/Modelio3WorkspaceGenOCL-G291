@@ -101,10 +101,19 @@ def associationsInPackage(package):
 # examples
 
 def umlEnumeration2OCL(enumeration):
-    """
-    Generate USE OCL code for the enumeration
-    """
-    print 'enumeration'
+	"""
+	Generate USE OCL code for the enumeration
+	"""
+	print 'enum '+enumeration.getName()+' {'
+	
+	enumLen = len(enumeration.getValue())
+	for index, enum in enumerate(enumeration.getValue()):
+		if index < enumLen-1:
+			print indent(2)+enum.getName()+','
+		else:
+			print indent(2)+enum.getName()
+	
+	print '}'
 
 def umlBasicType2OCL(basicType):
     """
