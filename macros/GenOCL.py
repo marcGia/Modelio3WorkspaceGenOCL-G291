@@ -128,7 +128,11 @@ def association2OCL(association):
 	Generate USE OCL association
 	"""
 	print association
-	#todo
+
+	if isinstance(association, Association):
+		pass #todo
+	elif isinstance(association, Composition):
+		pass #todo
 	
 	
 def umlClass2OCL(classe):
