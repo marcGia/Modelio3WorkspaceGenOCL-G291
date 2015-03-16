@@ -49,7 +49,7 @@ def isAssociationClass(element):
     has a associated association. (see the Modelio metamodel
     for details)
     """
-    print 'ok'
+    return len(element.getTargetingEnd())!=0
     
  
 #---------------------------------------------------------
@@ -63,12 +63,20 @@ def isAssociationClass(element):
 
 # example
 def associationsInPackage(package):
-    """
-    Return the list of all associations that start or
-    arrive to a class which is recursively contained in
-    a package.
-    """
-    print 'ko'
+	"""
+	Return the list of all associations that start or
+	arrive to a class which is recursively contained in
+	a package.
+	"""
+	associationList = []
+	for element in package.getOwnedElement():
+		if isinstance(element, Class):
+			for associationEnd in element.getOwnedEnd():
+				association = associationEnd.getAssociation()
+				if association not in associationList:
+					associationList.append(association)
+	
+	return associationList
 
     
 #---------------------------------------------------------
@@ -115,14 +123,14 @@ def umlEnumeration2OCL(enumeration):
 	
 	print '}'
 
-def umlBasicType2OCL(basicType):
-    """
-    Generate USE OCL basic type. Note that
-    type conversions are required.
-    """
-    typeName = basicType.getName()
-    return typeName.capitalize()
-
+def association2OCL(association):
+	"""
+	Generate USE OCL association
+	"""
+	print association
+	#todo
+	
+	
 def umlClass2OCL(classe):
 	"""
 	Generate USE OCL classes
@@ -161,7 +169,11 @@ def package2OCL(package):
 	    umlClass2OCL(element)
 	  elif isinstance(element, Enumeration):
 	    umlEnumeration2OCL(element)
-	  #elif to continue
+	  elif isinstance(element, Package):
+	    package2OCL(element)
+	  
+    for association in associationsInPackage(package):
+		association2OCL(association)		
 
 
 #---------------------------------------------------------
