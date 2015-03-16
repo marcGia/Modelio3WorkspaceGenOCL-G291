@@ -49,7 +49,7 @@ def isAssociationClass(element):
     has a associated association. (see the Modelio metamodel
     for details)
     """
-    # TODO
+    print 'ok'
     
  
 #---------------------------------------------------------
@@ -68,7 +68,7 @@ def associationsInPackage(package):
     arrive to a class which is recursively contained in
     a package.
     """
-    
+    print 'ko'
 
     
 #---------------------------------------------------------
@@ -104,15 +104,36 @@ def umlEnumeration2OCL(enumeration):
     """
     Generate USE OCL code for the enumeration
     """
+    print 'enumeration'
 
 def umlBasicType2OCL(basicType):
     """
     Generate USE OCL basic type. Note that
     type conversions are required.
     """
-    
-# etc.
+    typeName = basicType.getName()
+    return typeName.capitalize()
 
+def umlClass2OCL(classe):
+	"""
+	Generate USE OCL classes
+	"""
+	print 'class '+classe.getName()
+	
+	# Ecriture des attributs
+	print 'attributes'
+	for attribute in classe.getOwnedAttribute():
+		print indent(2)+attribute.getName()+' : '+umlBasicType2OCL(attribute.getType())
+	
+	# Ecriture des methodes (si elles existent)
+	operations = classe.getOwnedOperation()
+	if len(operations) > 0:
+		print 'operations'
+		for operation in operations:
+			print indent(2)+operation.getName()+'() : ' #+ todo
+	
+	print 'end\n'
+	
 def package2OCL(package):
     """
     Generate a complete OCL specification for a given package.
@@ -124,8 +145,14 @@ def package2OCL(package):
     might exist is not reflected in the USE OCL specification
     as USE is not supporting the concept of package.
     """
-
-
+    print 'Package '+package.getName()+':\n'
+	
+    for element in package.getOwnedElement():
+	  if isinstance(element, Class):
+	    umlClass2OCL(element)
+	  elif isinstance(element, Enumeration):
+	    umlEnumeration2OCL(element)
+	  #elif to continue
 
 
 #---------------------------------------------------------
@@ -142,3 +169,8 @@ def package2OCL(package):
 # (1) computation of the 'package' parameter
 # (2) call of package2OCL(package)
 # (3) do something with the result
+for element in selectedElements:
+  if isinstance(element, Package):
+    package2OCL(element)
+  else:
+	print 'Selectionnez un package!'
