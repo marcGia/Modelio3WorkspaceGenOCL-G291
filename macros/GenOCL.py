@@ -153,14 +153,13 @@ def umlClass2OCL(classe):
 	"""
 	Generate USE OCL classes
 	"""
-	print 'class '+classe.getName()
+	abstract = 'abstract ' if classe.isIsAbstract() else ''
+	print abstract+'class '+classe.getName()
 	
 	# Ecriture des attributs
 	print 'attributes'
 	for attribute in classe.getOwnedAttribute():
-		derived = ''
-		if attribute.isIsDerived():
-			derived = '  -- @derived'
+		derived = '  -- @derived' if attribute.isIsDerived() else ''
 		print indent(2)+attribute.getName()+' : '+umlBasicType2OCL(attribute.getType())+derived
 	
 	# Ecriture des methodes (si elles existent)
