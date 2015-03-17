@@ -123,17 +123,22 @@ def umlEnumeration2OCL(enumeration):
 	
 	print '}'
 
+def umlBasicType2OCL(basicType):
+	"""
+	Generate USE OCL basic type. Note that
+	type conversions are required.
+	"""
+	typeName = basicType.getName()
+	return typeName.capitalize()
+	
 def association2OCL(association):
 	"""
 	Generate USE OCL association
 	"""
-	print association
-
 	if isinstance(association, Association):
-		pass #todo
-	elif isinstance(association, Composition):
-		pass #todo
-	
+		print 'association '+association.getName()+' between'
+		#todo
+		print 'end\n'
 	
 def umlClass2OCL(classe):
 	"""
