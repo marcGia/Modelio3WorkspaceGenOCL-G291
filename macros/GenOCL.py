@@ -158,7 +158,10 @@ def umlClass2OCL(classe):
 	# Ecriture des attributs
 	print 'attributes'
 	for attribute in classe.getOwnedAttribute():
-		print indent(2)+attribute.getName()+' : '+umlBasicType2OCL(attribute.getType())
+		derived = ''
+		if attribute.isIsDerived():
+			derived = '  -- @derived'
+		print indent(2)+attribute.getName()+' : '+umlBasicType2OCL(attribute.getType())+derived
 	
 	# Ecriture des methodes (si elles existent)
 	operations = classe.getOwnedOperation()
