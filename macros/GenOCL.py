@@ -137,7 +137,13 @@ def association2OCL(association):
 	"""
 	if isinstance(association, Association):
 		print 'association '+association.getName()+' between'
-		#todo
+		for associationEnd in association.getEnd():
+			cardMin = associationEnd.getMultiplicityMin()
+			cardMax = associationEnd.getMultiplicityMax()
+			if cardMin != cardMax:
+				print indent(2)+associationEnd.getOwner().getName()+' ['+cardMin+'..'+cardMax+'] role '+associationEnd.getName()
+			else:
+				print indent(2)+associationEnd.getOwner().getName()+' ['+cardMin+'] role '+associationEnd.getName()
 		print 'end\n'
 	
 def umlClass2OCL(classe):
