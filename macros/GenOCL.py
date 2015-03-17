@@ -134,6 +134,15 @@ def umlBasicType2OCL(basicType):
 		typeName = basicType.getName()
 		return typeName.capitalize()
 	
+def umlMultiplicity2OCL(min, max):
+	"""
+	Generate USE OCL Multiplicity
+	"""
+	if min != max and (min!='0' or max!='*'):
+		return ' ['+min+'..'+max+'] '
+	else:
+		return ' ['+max+'] '
+	
 def association2OCL(association):
 	"""
 	Generate USE OCL association
@@ -141,12 +150,7 @@ def association2OCL(association):
 	if isinstance(association, Association):
 		print 'association '+association.getName()+' between'
 		for associationEnd in association.getEnd():
-			cardMin = associationEnd.getMultiplicityMin()
-			cardMax = associationEnd.getMultiplicityMax()
-			if cardMin != cardMax and (cardMin!='0' or cardMax!='*'):
-				print indent(2)+associationEnd.getOwner().getName()+' ['+cardMin+'..'+cardMax+'] role '+associationEnd.getName()
-			else:
-				print indent(2)+associationEnd.getOwner().getName()+' ['+cardMax+'] role '+associationEnd.getName()
+			print indent(2)+associationEnd.getOwner().getName()+umlMultiplicity2OCL(associationEnd.getMultiplicityMin(), associationEnd.getMultiplicityMax())+'role '+associationEnd.getName()
 		print 'end\n'
 	
 def umlClass2OCL(classe):
@@ -167,12 +171,7 @@ def umlClass2OCL(classe):
 	if len(operations) > 0:
 		print 'operations'
 		for operation in operations:
-			cardMin = operation.getReturn().getMultiplicityMin()
-			cardMax = operation.getReturn().getMultiplicityMax()
-			if cardMin != cardMax and (cardMin!='0' or cardMax!='*'):
-				print indent(2)+operation.getName()+'() : '+umlBasicType2OCL(operation.getReturn().getType())+' ['+cardMin+'..'+cardMax+']'
-			else:
-				print indent(2)+operation.getName()+'() : '+umlBasicType2OCL(operation.getReturn().getType())+' ['+cardMax+']'
+			print indent(2)+operation.getName()+'() : '+umlBasicType2OCL(operation.getReturn().getType())+umlMultiplicity2OCL(operation.getReturn().getMultiplicityMin(), operation.getReturn().getMultiplicityMax())
 	
 	print 'end\n'
 	
