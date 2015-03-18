@@ -123,16 +123,18 @@ def umlEnumeration2OCL(enumeration):
 	
 	print '}'
 
+	
 def umlBasicType2OCL(basicType):
 	"""
 	Generate USE OCL basic type. Note that
 	type conversions are required.
 	"""
-	if isinstance(basicType, Class):
+	if isinstance(basicType, Class) or isinstance(basicType, Enumeration):
 		return basicType.getName()
 	else:
 		typeName = basicType.getName()
 		return typeName.capitalize()
+	
 	
 def umlMultiplicity2OCL(min, max):
 	"""
@@ -152,6 +154,23 @@ def association2OCL(association):
 		for associationEnd in association.getEnd():
 			print indent(2)+associationEnd.getOwner().getName()+umlMultiplicity2OCL(associationEnd.getMultiplicityMin(), associationEnd.getMultiplicityMax())+'role '+associationEnd.getName()
 		print 'end\n'
+
+		
+def operation2OCL(operation):
+	"""
+	Generate USE OCL operations
+	"""
+	parameters = ''
+	if len(operation.getIO())>0:
+		for index, parameter in enumerate(operation.getIO()):
+			parameters += parameter.getName()+': '+umlBasicType2OCL(parameter.getType())
+			if index < len(operation.getIO())-1:
+				parameters += ', '
+	
+	returnedType = '' if operation.getReturn() is None else ': '+umlBasicType2OCL(operation.getReturn().getType())
+	
+	return operation.getName()+'('+parameters+') '+returnedType
+	
 	
 def umlClass2OCL(classe):
 	"""
@@ -161,19 +180,21 @@ def umlClass2OCL(classe):
 	print abstract+'class '+classe.getName()
 	
 	# Ecriture des attributs
-	print 'attributes'
-	for attribute in classe.getOwnedAttribute():
-		derived = '  -- @derived' if attribute.isIsDerived() else ''
-		print indent(2)+attribute.getName()+' : '+umlBasicType2OCL(attribute.getType())+derived
+	if len(classe.getOwnedAttribute())>0:
+		print 'attributes'
+		for attribute in classe.getOwnedAttribute():
+			derived = '  -- @derived' if attribute.isIsDerived() else ''
+			print indent(2)+attribute.getName()+' : '+umlBasicType2OCL(attribute.getType())+derived
 	
 	# Ecriture des methodes (si elles existent)
 	operations = classe.getOwnedOperation()
 	if len(operations) > 0:
 		print 'operations'
 		for operation in operations:
-			print indent(2)+operation.getName()+'() : '+umlBasicType2OCL(operation.getReturn().getType())+umlMultiplicity2OCL(operation.getReturn().getMultiplicityMin(), operation.getReturn().getMultiplicityMax())
+			print indent(2)+operation2OCL(operation)
 	
 	print 'end\n'
+	
 	
 def package2OCL(package):
     """
@@ -186,8 +207,6 @@ def package2OCL(package):
     might exist is not reflected in the USE OCL specification
     as USE is not supporting the concept of package.
     """
-    print 'Package '+package.getName()+':\n'
-	
     for element in package.getOwnedElement():
 	  if isinstance(element, Class):
 	    umlClass2OCL(element)
