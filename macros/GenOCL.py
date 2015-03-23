@@ -24,7 +24,7 @@ Etat actuel:
 - associations unspecified	-> OK
 - associations ordered		-> OK
 - associations composition	-> OK
-- associations aggregation	-> TODO
+- associations aggregation	-> OK
 - associations class		-> OK
 - associations qualified	-> TODO
 - associations NAry			-> TODO
@@ -171,6 +171,18 @@ def umlMultiplicity2OCL(min, max):
 	else:
 		return ' ['+max+'] '
 	
+def umlKindOfAssociation2OCL(associationKind):
+	"""
+	Determine the type of the association
+	"""
+	if associationKind == 'KindIsComposition':
+		return 'composition'
+	elif associationKind == 'KindIsAggregation':
+		return 'aggregation'
+	else:
+		return 'association'
+	
+
 def association2OCL(association):
 	"""
 	Generate USE OCL association
@@ -185,10 +197,11 @@ def association2OCL(association):
 				role = 'role '+associationEnd.getOpposite().getName()
 			else:
 				role = ''
-			# Si c'est une composition, une des associationEnd est de type composition
-			# Si c'est une composition, l'entree courante doit etre place au debut du contenu de la composition
-			if str(associationEnd.getAggregation()) == 'KindIsComposition':
-				associationType = 'composition'
+			# Si c'est une composition ou une aggregation, une des associationEnd est de type composition ou aggregation
+			# Si c'est une composition ou une aggregation, l'entree courante doit etre place au debut du contenu de la composition
+			type = umlKindOfAssociation2OCL(str(associationEnd.getAggregation()))
+			if type == 'composition' or type == 'aggregation':
+				associationType = type
 				associationContent = indent(2)+associationEnd.getOwner().getName()+umlMultiplicity2OCL(associationEnd.getOpposite().getMultiplicityMin(), associationEnd.getOpposite().getMultiplicityMax())+role+'\n'+associationContent
 			else:
 				associationContent += indent(2)+associationEnd.getOwner().getName()+umlMultiplicity2OCL(associationEnd.getOpposite().getMultiplicityMin(), associationEnd.getOpposite().getMultiplicityMax())+role+'\n'
