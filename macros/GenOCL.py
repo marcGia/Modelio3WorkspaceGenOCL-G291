@@ -150,11 +150,16 @@ def association2OCL(association):
 	Generate USE OCL association
 	"""
 	if isinstance(association, Association):
-		print 'association '+association.getName()+' between'
-		for associationEnd in association.getEnd():
-			print indent(2)+associationEnd.getOwner().getName()+umlMultiplicity2OCL(associationEnd.getMultiplicityMin(), associationEnd.getMultiplicityMax())+'role '+associationEnd.getName()
-		print 'end\n'
-
+		# Les classes associatives sont gerees dans class2OCL
+		if(not association.getLinkToClass()):
+			print 'association '+association.getName()+' between'
+			for associationEnd in association.getEnd():
+				if(associationEnd.getName() != ''):
+					role = 'role '+associationEnd.getName()
+				else:
+					role = ''
+				print indent(2)+associationEnd.getOwner().getName()+umlMultiplicity2OCL(associationEnd.getMultiplicityMin(), associationEnd.getMultiplicityMax())+role
+			print 'end\n'
 		
 def operation2OCL(operation):
 	"""
@@ -177,7 +182,32 @@ def umlClass2OCL(classe):
 	Generate USE OCL classes
 	"""
 	abstract = 'abstract ' if classe.isIsAbstract() else ''
-	print abstract+'class '+classe.getName()
+	
+	linkAssociation = classe.getLinkToAssociation()
+	if(linkAssociation):
+		classType = 'associationclass '
+		blocAssociation = 'between\n'
+		for associationEnd in linkAssociation.getAssociationPart().getEnd():
+			if(associationEnd.getName() != ''):
+				role = 'role '+associationEnd.getName()
+			else:
+				role = ''
+			blocAssociation = blocAssociation+indent(2)+associationEnd.getOwner().getName()+umlMultiplicity2OCL(associationEnd.getMultiplicityMin(), associationEnd.getMultiplicityMax())+role+'\n'
+	else:
+		classType = 'class '
+		blocAssociation = ''
+		
+	parents = classe.getParent()
+	if(parents):
+		# Multi heritage non autorise
+		superClasse = ' < '+parents[0].getSuperType().getName()
+		print abstract+classType+classe.getName()+superClasse
+	else:
+		print abstract+classType+classe.getName()
+	
+	# Ecriture des association (si elles existent)
+	if(blocAssociation != ''):
+		print blocAssociation
 	
 	# Ecriture des attributs
 	if len(classe.getOwnedAttribute())>0:
@@ -216,7 +246,7 @@ def package2OCL(package):
 	    package2OCL(element)
 	  
     for association in associationsInPackage(package):
-		association2OCL(association)		
+		association2OCL(association)
 
 
 #---------------------------------------------------------
@@ -234,7 +264,8 @@ def package2OCL(package):
 # (2) call of package2OCL(package)
 # (3) do something with the result
 for element in selectedElements:
-  if isinstance(element, Package):
-    package2OCL(element)
-  else:
-	print 'Selectionnez un package!'
+	if isinstance(element, Package):
+		print 'model '+element.getName()+'\n'
+		package2OCL(element)
+	else:
+		print 'Selectionnez un package!'
