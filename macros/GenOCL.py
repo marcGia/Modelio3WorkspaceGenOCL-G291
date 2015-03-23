@@ -200,8 +200,12 @@ def umlClass2OCL(classe):
 	parents = classe.getParent()
 	if(parents):
 		superClasses = ' < '
-		for superC in parents:
-			superClasses = superClasses+", "+superC.getSuperType().getName()
+		for i in range(len(parents)):
+			if(i == 0):
+				superClasses = superClasses + parents[0].getSuperType().getName()
+			else:
+				superClasses = superClasses + ', '+parents[i].getSuperType().getName()
+
 		print abstract+classType+classe.getName()+superClasses
 	else:
 		print abstract+classType+classe.getName()
