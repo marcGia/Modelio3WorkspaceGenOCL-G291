@@ -19,7 +19,7 @@ Etat actuel:
 - attributes enumarations	-> OK
 - operations				-> OK
 - inheritance simple		-> OK
-- inheritance multiple		-> TODO
+- inheritance multiple		-> OK
 - associations simple		-> OK
 - associations unspecified	-> OK
 - associations ordered		-> OK
