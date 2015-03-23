@@ -233,9 +233,14 @@ def umlClass2OCL(classe):
 		
 	parents = classe.getParent()
 	if(parents):
-		# Multi heritage non autorise
-		superClasse = ' < '+parents[0].getSuperType().getName()
-		print abstract+classType+classe.getName()+superClasse
+		superClasses = ' < '
+		for i in range(len(parents)):
+			if(i == 0):
+				superClasses = superClasses + parents[0].getSuperType().getName()
+			else:
+				superClasses = superClasses + ', '+parents[i].getSuperType().getName()
+
+		print abstract+classType+classe.getName()+superClasses
 	else:
 		print abstract+classType+classe.getName()
 	
