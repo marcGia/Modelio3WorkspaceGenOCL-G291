@@ -5,23 +5,46 @@
 =========================================================
 
 FILL THIS SECTION AS SHOWN BELOW AND LINES STARTING WITH ###
-@author Xuan Shong TI WONG SHI <xuan.ti@mydomain.com>
-@author Maria Shohie CEZAR LOPEZ DE ANDERA <maria.cezar@ujf-grenoble.fr>
-@group  G99
+@author Giaccone Marc <marc.giaccone@laposte.net>
+@author Nawaoui Swane <swane.nawaoui@gmail.com>
+@group  G291
 
 Current state of the generator
 ----------------------------------
-FILL THIS SECTION 
-Explain which UML constructs are supported, which ones are not.
-What is good in your generator?
-What are the current limitations?
+Etat actuel:
+- classes 					-> OK
+- attributes simple 		-> OK
+- attributes visibility		-> OK
+- attributes cardinality	-> OK
+- attributes enumarations	-> OK
+- operations				-> OK
+- inheritance simple		-> OK
+- inheritance multiple		-> TODO
+- associations simple		-> OK
+- associations unspecified	-> OK
+- associations ordered		-> OK
+- associations composition	-> TODO
+- associations aggregation	-> TODO
+- associations class		-> OK
+- associations qualified	-> TODO
+- associations NAry			-> TODO
+- notes 					-> TODO
+
+limitations:
+L'ordre n'est pas toujours respecté. Par exemple les enumerations sont crees après les classes, ce qui
+est problematique si la classe possède un attribut du type de cette enumeration. Il faut donc copier-coller
+la sortie générée dans le bon ordre pour USE OCL.
 
 Current state of the tests
 --------------------------
-FILL THIS SECTION 
-Explain how did you test this generator.
-Which test are working? 
-Which are not?
+- Le script GenOCL est exécuté sur chaque package du projet UMLTestCase durant le developpement d'une 
+fonctionnalité jusqu'à ce que l'affichage nous paraisse correct.
+
+- L'affichage générée par les script GenOcl est testé avec le programme de USE (copié-coller de la sortie). Si 
+aucune erreurs n'est annoncé et que le schéma UML affiché par le programme USE correspond à celui du projet 
+UMLTestCase alors le test est validé.
+
+- Une fonctionnalité est developpée jusqu'à ce que les tests soit validés.
 
 Observations
 ------------
