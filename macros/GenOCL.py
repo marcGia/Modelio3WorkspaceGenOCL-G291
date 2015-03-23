@@ -46,6 +46,9 @@ UMLTestCase alors le test est validé.
 
 - Une fonctionnalité est developpée jusqu'à ce que les tests soit validés.
 
+- De temps en temps le script est executé sur le projet CyberResidences afin de verifier qu'il fonctionne correctement
+dans un exemple plus global.
+
 Observations
 ------------
 Additional observations could go there
@@ -191,7 +194,7 @@ def association2OCL(association):
 	associationContent = ''
 	
 	# Les classes associatives sont gerees dans class2OCL
-	if(not association.getLinkToClass()):
+	if(association is not None and not association.getLinkToClass()):
 		for associationEnd in association.getEnd():
 			if(associationEnd.getName() != ''):
 				role = 'role '+associationEnd.getOpposite().getName()
