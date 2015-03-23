@@ -129,10 +129,13 @@ def umlBasicType2OCL(basicType):
 	Generate USE OCL basic type. Note that
 	type conversions are required.
 	"""
+	typeName = basicType.getName()
+	
 	if isinstance(basicType, Class) or isinstance(basicType, Enumeration):
-		return basicType.getName()
+		return typeName
+	elif typeName == 'float':
+		return 'Real'
 	else:
-		typeName = basicType.getName()
 		return typeName.capitalize()
 	
 	
