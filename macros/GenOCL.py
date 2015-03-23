@@ -23,7 +23,7 @@ Etat actuel:
 - associations simple		-> OK
 - associations unspecified	-> OK
 - associations ordered		-> OK
-- associations composition	-> TODO
+- associations composition	-> OK
 - associations aggregation	-> TODO
 - associations class		-> OK
 - associations qualified	-> TODO
@@ -175,17 +175,25 @@ def association2OCL(association):
 	"""
 	Generate USE OCL association
 	"""
-	if isinstance(association, Association):
-		# Les classes associatives sont gerees dans class2OCL
-		if(not association.getLinkToClass()):
-			print 'association '+association.getName()+' between'
-			for associationEnd in association.getEnd():
-				if(associationEnd.getName() != ''):
-					role = 'role '+associationEnd.getName()
-				else:
-					role = ''
-				print indent(2)+associationEnd.getOwner().getName()+umlMultiplicity2OCL(associationEnd.getMultiplicityMin(), associationEnd.getMultiplicityMax())+role
-			print 'end\n'
+	associationType = 'association'
+	associationContent = ''
+	
+	# Les classes associatives sont gerees dans class2OCL
+	if(not association.getLinkToClass()):
+		for associationEnd in association.getEnd():
+			if(associationEnd.getName() != ''):
+				role = 'role '+associationEnd.getOpposite().getName()
+			else:
+				role = ''
+			# Si c'est une composition, une des associationEnd est de type composition
+			# Si c'est une composition, l'entree courante doit etre place au debut du contenu de la composition
+			if str(associationEnd.getAggregation()) == 'KindIsComposition':
+				associationType = 'composition'
+				associationContent = indent(2)+associationEnd.getOwner().getName()+umlMultiplicity2OCL(associationEnd.getOpposite().getMultiplicityMin(), associationEnd.getOpposite().getMultiplicityMax())+role+'\n'+associationContent
+			else:
+				associationContent += indent(2)+associationEnd.getOwner().getName()+umlMultiplicity2OCL(associationEnd.getOpposite().getMultiplicityMin(), associationEnd.getOpposite().getMultiplicityMax())+role+'\n'
+		print associationType+' '+association.getName()+' between'
+		print associationContent+'end\n'
 		
 def operation2OCL(operation):
 	"""
