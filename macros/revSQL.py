@@ -7,7 +7,11 @@
 @author Nawaoui Swane <swane.nawaoui@gmail.com>
 @group  G291
 
-http://modelioscribes.readthedocs.org/en/latest/index.html
+# Documentation:
+# for transactions: http://forge.modelio.org/projects/modelio3-moduledevelopersmanuals-api/wiki/Transaction_api
+# for the uml factory: http://modelio.org/documentation/javadoc-3.1/org/modelio/api/model/IUmlModel.html
+# for example: http://modelioscribes.readthedocs.org/en/latest/index.html
+# for library relational model: http://schemaspy.sourceforge.net/sample/relationships.html
 
 Current state of the generator
 ----------------------------------
@@ -38,6 +42,26 @@ def readColumns(table):
 	"""
 	columnsList = []
 	for column in table.findall('column'):
+		columnType = column.find('parent')
+
+		className = table.get('name')
+		if columnType is None:
+			# 'columnType' is an attribute
+			attributeName = column.get('name')
+
+			# --> Build attribute
+			print '\tCreate attribute '+attributeName+' in '+className
+		else:
+			# 'columnType' is a foreign key hence represented by an association
+			# role1 = columnType.get('foreignKey')
+			# role2 = columnType.get('column')
+			# foreignKey = root.find("..//*child[@foreignKey='"+role2+"']")
+			
+			referencedClass = columnType.get('table')
+			
+			# --> Build association
+			print '\tCreate association between '+className+' and '+referencedClass
+
 		columnsList.append(column)
 	return columnsList
 
@@ -47,9 +71,16 @@ def readTables():
 	"""
 	tablesList = []
 	for table in root.findall('tables/table'):
+		className = table.get('name')
 		tablesList.append(table)
-	return tablesList
+
+		# --> Build class
+		print 'Create class '+className
+
+		readColumns(table)
 		
+	return tablesList
+
 #---------------------------------------------------------
 #       		UML Generation functions
 #---------------------------------------------------------
@@ -78,7 +109,6 @@ def basicType2UML(type):
 		return basicTypes.getBOOLEAN()
 	else:
 		return basicTypes.getUNDEFINED()
-	
 
 def generateClass(className):
 	"""
