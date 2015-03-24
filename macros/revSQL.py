@@ -55,17 +55,58 @@ def readTables():
 #---------------------------------------------------------
 # These functions allow to generate UML from xml 
 #---------------------------------------------------------
-transaction = theSession().createTransaction("Class creation")
-try:
-  factory = theUMLFactory()
-  packageTarget = instanceNamed(Package,"library2uml")
-  class1 = factory.createClass("Voiture", packageTarget)
-  class2 = factory.createClass("Roue",packageTarget)
-  transaction.commit()
-except:
-  transaction.rollback()
-  raise
+def basicType2UML(type):
+	"""
+	Convertion of SQL type into UML type
+	"""
+	basicTypes = theSession().getModel().getUmlTypes()
+	if type == 'INT':
+		return basicTypes.getINTEGER()
+	elif type == 'VARCHAR':
+		return basicTypes.getSTRING()
+	elif type == 'BIGINT':
+		return basicTypes.getLONG()
+	elif type == 'SMALLINT':
+		return basicTypes.getSHORT()
+	elif type == 'FLOAT':
+		return basicTypes.getFLOAT()
+	elif type == 'DATE':
+		return basicTypes.getDATE() 
+	elif type == 'TEXT':
+		return basicTypes.getSTRING()
+	elif type == 'BOOL':
+		return basicTypes.getBOOLEAN()
+	else:
+		return basicTypes.getUNDEFINED()
+	
 
+def generateClass(className):
+	"""
+	Generate a class from a table
+	"""
+	transaction = theSession().createTransaction('Class creation')
+	try:
+		factory = theUMLFactory()
+		packageTarget = instanceNamed(Package,'library2uml')
+		newClass = factory.createClass(className, packageTarget)
+		transaction.commit()
+	except:
+		transaction.rollback()
+		raise
+		
+def addAttribute(attributeName, attributeType, className):
+	"""
+	Add attributes to a class
+	"""
+	transaction = theSession().createTransaction('attribute adding')
+	try:
+		factory = theUMLFactory()
+		classOwner = instanceNamed(Class, className)
+		newAttribute = factory.createAttribute(attributeName, basicType2UML(attributeType), classOwner)
+		transaction.commit()
+	except:
+		transaction.rollback()
+		raise
 
 #---------------------------------------------------------
 #       				Main
