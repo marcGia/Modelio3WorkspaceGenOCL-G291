@@ -51,7 +51,16 @@ def readTables():
 #---------------------------------------------------------
 # These functions allow to generate UML from xml 
 #---------------------------------------------------------
-#TODO
+transaction = theSession().createTransaction("Class creation")
+try:
+  factory = theUMLFactory()
+  packageTarget = instanceNamed(Package,"library2uml")
+  class1 = factory.createClass("Voiture", packageTarget)
+  class2 = factory.createClass("Roue",packageTarget)
+  transaction.commit()
+except:
+  transaction.rollback()
+  raise
 
 
 #---------------------------------------------------------
