@@ -7,8 +7,11 @@
 @author Nawaoui Swane <swane.nawaoui@gmail.com>
 @group  G291
 
-http://modelioscribes.readthedocs.org/en/latest/index.html
-http://schemaspy.sourceforge.net/sample/relationships.html
+# Documentation:
+# for transactions: http://forge.modelio.org/projects/modelio3-moduledevelopersmanuals-api/wiki/Transaction_api
+# for the uml factory: http://modelio.org/documentation/javadoc-3.1/org/modelio/api/model/IUmlModel.html
+# for example: http://modelioscribes.readthedocs.org/en/latest/index.html
+# for library relational model: http://schemaspy.sourceforge.net/sample/relationships.html
 
 Current state of the generator
 ----------------------------------
