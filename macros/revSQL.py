@@ -38,29 +38,50 @@ root = tree.getroot()
 
 def readColumns(table):
 	for column in table.findall('column'):
-		print'\tcolumn '+column.get('name')+' '+column.get('type')
+		columnType = column.find('parent')
+
+		className = table.get('name')
+		if columnType is None:
+			# 'columnType' is an attribute
+			attributeName = column.get('name')
+
+			# --> Build attribute
+			print '\tCreate attribute '+attributeName+' in '+className
+		else:
+			# 'columnType' is a foreign key hence represented by an association
+			# role1 = columnType.get('foreignKey')
+			# role2 = columnType.get('column')
+			# foreignKey = root.find("..//*child[@foreignKey='"+role2+"']")
+			
+			referencedClass = columnType.get('table')
+			
+			# --> Build association
+			print '\tCreate association between '+className+' and '+referencedClass
 
 def readTables():
 	for table in root.findall('tables/table'):
-		print 'table '+table.get('name')+' '+table.get('numRows');
+		className = table.get('name')
+		
+		# --> Build class
+		print 'Create class '+className
+
 		readColumns(table)
-		
-		
+
 #---------------------------------------------------------
 #       		UML Generation functions
 #---------------------------------------------------------
 # These functions allow to generate UML from xml 
 #---------------------------------------------------------
-transaction = theSession().createTransaction("Class creation")
-try:
-  factory = theUMLFactory()
-  packageTarget = instanceNamed(Package,"library2uml")
-  class1 = factory.createClass("Voiture", packageTarget)
-  class2 = factory.createClass("Roue",packageTarget)
-  transaction.commit()
-except:
-  transaction.rollback()
-  raise
+# transaction = theSession().createTransaction("Class creation")
+# try:
+  # factory = theUMLFactory()
+  # packageTarget = instanceNamed(Package,"library2uml")
+  # class1 = factory.createClass("Voiture", packageTarget)
+  # class2 = factory.createClass("Roue",packageTarget)
+  # transaction.commit()
+# except:
+  # transaction.rollback()
+  # raise
 
 
 #---------------------------------------------------------
