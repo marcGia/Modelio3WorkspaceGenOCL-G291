@@ -33,14 +33,22 @@ tree = ET.parse(pathToFile)
 root = tree.getroot()
 
 def readColumns(table):
+	"""
+	Return the list of columns in a table
+	"""
+	columnsList = []
 	for column in table.findall('column'):
-		print'\tcolumn '+column.get('name')+' '+column.get('type')
+		columnsList.append(column)
+	return columnsList
 
 def readTables():
+	"""
+	Return the list of tables from the xml
+	"""
+	tablesList = []
 	for table in root.findall('tables/table'):
-		print 'table '+table.get('name')+' '+table.get('numRows');
-		readColumns(table)
-		
+		tablesList.append(table)
+	return tablesList
 		
 #---------------------------------------------------------
 #       		UML Generation functions
@@ -62,5 +70,8 @@ except:
 #---------------------------------------------------------
 #       				Main
 #---------------------------------------------------------
-readTables()
+for table in readTables():
+	print 'table '+table.get('name')+' '+table.get('numRows');
+	for column in readColumns(table):
+		print'\tcolumn '+column.get('name')+' '+column.get('type')
 
