@@ -8,6 +8,7 @@
 @group  G291
 
 http://modelioscribes.readthedocs.org/en/latest/index.html
+http://schemaspy.sourceforge.net/sample/relationships.html
 
 Current state of the generator
 ----------------------------------
