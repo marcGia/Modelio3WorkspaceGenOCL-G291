@@ -37,6 +37,10 @@ tree = ET.parse(pathToFile)
 root = tree.getroot()
 
 def readColumns(table):
+	"""
+	Return the list of columns in a table
+	"""
+	columnsList = []
 	for column in table.findall('column'):
 		columnType = column.find('parent')
 
@@ -58,14 +62,24 @@ def readColumns(table):
 			# --> Build association
 			print '\tCreate association between '+className+' and '+referencedClass
 
+		columnsList.append(column)
+	return columnsList
+
 def readTables():
+	"""
+	Return the list of tables from the xml
+	"""
+	tablesList = []
 	for table in root.findall('tables/table'):
 		className = table.get('name')
-		
+		tablesList.append(table)
+
 		# --> Build class
 		print 'Create class '+className
 
 		readColumns(table)
+		
+	return tablesList
 
 #---------------------------------------------------------
 #       		UML Generation functions
@@ -87,5 +101,8 @@ def readTables():
 #---------------------------------------------------------
 #       				Main
 #---------------------------------------------------------
-readTables()
+for table in readTables():
+	print 'table '+table.get('name')+' '+table.get('numRows');
+	for column in readColumns(table):
+		print'\tcolumn '+column.get('name')+' '+column.get('type')
 
