@@ -17,4 +17,7 @@
 <script name=">> Run" path="OnlinePyScript-Run.py" icon-path="" show-menu="true" show-toolbar="true">
 <description></description>
 </script>
+<script name="Reverse SQL" path="revSQL.py" icon-path="" show-menu="true" show-toolbar="true">
+<description></description>
+</script>
 </catalog>
