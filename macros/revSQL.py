@@ -1,7 +1,6 @@
 """
 =========================================================
-                       GenOCL.py
- Generate a USE OCL specification from a UML package
+                       revSQL.py
 =========================================================
 
 @author Giaccone Marc <marc.giaccone@laposte.net>
@@ -20,3 +19,9 @@ Observations
 ------------
 Additional observations could go there
 """
+import xml.etree.ElementTree as ET
+
+pathToFile = Modelio.getInstance().getContext().getWorkspacePath().toString()+'\\library.xml'
+tree = ET.parse(pathToFile)
+root = tree.getroot()
+print root.get('name')
