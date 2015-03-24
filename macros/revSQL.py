@@ -7,6 +7,8 @@
 @author Nawaoui Swane <swane.nawaoui@gmail.com>
 @group  G291
 
+http://modelioscribes.readthedocs.org/en/latest/index.html
+
 Current state of the generator
 ----------------------------------
 
@@ -24,4 +26,8 @@ import xml.etree.ElementTree as ET
 pathToFile = Modelio.getInstance().getContext().getWorkspacePath().toString()+'\\library.xml'
 tree = ET.parse(pathToFile)
 root = tree.getroot()
-print root.get('name')
+
+for table in root.findall('tables/table'):
+	print 'table '+table.get('name')+' '+table.get('numRows');
+	for column in table.findall('column'):
+		print'\tcolumn '+column.get('name')+' '+column.get('type')
