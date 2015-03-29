@@ -53,14 +53,22 @@ def readColumns(table):
 			print '\tCreate attribute '+attributeName+' in '+className
 		else:
 			# 'columnType' is a foreign key hence represented by an association
-			# role1 = columnType.get('foreignKey')
-			# role2 = columnType.get('column')
-			# foreignKey = root.find("..//*child[@foreignKey='"+role2+"']")
+			source = columnType.get('column')
 			
 			referencedClass = columnType.get('table')
+			referencedClass_column = columnType.get('foreignKey')
+			
+			ref = root.find("tables/table[@name='"+referencedClass+"']")
+			
+			# find the column with the right foreign key
+			ref_column = ref.find("column/child[@foreignKey='"+referencedClass_column+"']/..")
+			
+			destination = ref_column.get('name')
 			
 			# --> Build association
-			print '\tCreate association between '+className+' and '+referencedClass
+			print '\tCreate level1 association: '+className+' <--> '+referencedClass
+			print '\tCreate level2 association: '+className+' --> '+referencedClass
+			print '\tCreate level3 association: '+className+'.'+source+' --> '+referencedClass+"."+destination
 
 		columnsList.append(column)
 	return columnsList
