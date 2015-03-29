@@ -86,6 +86,23 @@ def readTables():
 #---------------------------------------------------------
 # These functions allow to generate UML from xml 
 #---------------------------------------------------------
+def cleanPackage(packageName):
+	"""
+	Delete all elements in the package
+	"""
+	transaction = theSession().createTransaction('clean package')
+	try:
+		packageTarget = instanceNamed(Package, packageName)
+		elements = list(packageTarget.getOwnedElement())
+
+		for element in elements:
+			element.delete()
+			
+		transaction.commit()
+	except:
+		transaction.rollback()
+		raise
+
 def basicType2UML(type):
 	"""
 	Convertion of SQL type into UML type
@@ -141,8 +158,12 @@ def addAttribute(attributeName, attributeType, className):
 #---------------------------------------------------------
 #       				Main
 #---------------------------------------------------------
+cleanPackage('library2uml')
+
 for table in readTables():
-	print 'table '+table.get('name')+' '+table.get('numRows');
+	#print 'table '+table.get('name')+' '+table.get('numRows');
+	generateClass(table.get('name'))
 	for column in readColumns(table):
-		print'\tcolumn '+column.get('name')+' '+column.get('type')
+		#print'\tcolumn '+column.get('name')+' '+column.get('type')
+		addAttribute(column.get('name'), column.get('type'), table.get('name'))
 
