@@ -96,7 +96,7 @@ def readTables():
 #---------------------------------------------------------
 def cleanPackage(packageName):
 	"""
-	Delete all elements in the package
+	Delete all elements in the package packageName(String)
 	"""
 	transaction = theSession().createTransaction('clean package')
 	try:
@@ -137,7 +137,7 @@ def basicType2UML(type):
 
 def generateClass(className):
 	"""
-	Generate a class from a table
+	Generate a class with the name className(String)
 	"""
 	transaction = theSession().createTransaction('Class creation')
 	try:
@@ -151,13 +151,29 @@ def generateClass(className):
 		
 def addAttribute(attributeName, attributeType, className):
 	"""
-	Add attributes to a class
+	Add the attributes attributeName(String) with attributeType(UMLType) to the class className(String)
 	"""
 	transaction = theSession().createTransaction('attribute adding')
 	try:
 		factory = theUMLFactory()
 		classOwner = instanceNamed(Class, className)
 		newAttribute = factory.createAttribute(attributeName, basicType2UML(attributeType), classOwner)
+		transaction.commit()
+	except:
+		transaction.rollback()
+		raise
+		
+def addAssociation(srcClassName, destClassName, destRole):
+	"""
+	Create the association from the class srcClassName(String) to the destClassName(String) with the given 
+	destination role destRole(String)
+	"""
+	transaction = theSession().createTransaction('association adding')
+	try:
+		factory = theUMLFactory()
+		src = instanceNamed(Class, srcClassName)
+		dest = instanceNamed(Class, destClassName)
+		newAssociation = factory.createAssociation(src, dest, destRole)
 		transaction.commit()
 	except:
 		transaction.rollback()
