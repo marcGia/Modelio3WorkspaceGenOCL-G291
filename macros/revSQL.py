@@ -42,38 +42,59 @@ def readColumns(table):
 	"""
 	columnsList = []
 	for column in table.findall('column'):
-		columnType = column.find('parent')
-
-		className = table.get('name')
-		if columnType is None:
-			# 'columnType' is an attribute
-			attributeName = column.get('name')
-
-			# --> Build attribute
-			# level 1: all entries are simple attributes
-			print '\tCreate level1 attribute: '+attributeName+' in '+className
-
-		else:
-			# 'columnType' is a foreign key hence represented by an association
-			source = columnType.get('column')
-			
-			referencedClass = columnType.get('table')
-			referencedClass_column = columnType.get('foreignKey')
-			
-			ref = root.find("tables/table[@name='"+referencedClass+"']")
-			
-			# find the column with the right foreign key
-			ref_column = ref.find("column/child[@foreignKey='"+referencedClass_column+"']/..")
-			
-			destination = ref_column.get('name')
-
-			# --> Build association
-			print '\tCreate level1 association: '+className+' <--> '+referencedClass
-			print '\tCreate level2 association: '+className+' --> '+referencedClass
-			print '\tCreate level3 association: '+className+'.'+source+' --> '+referencedClass+"."+destination
-
 		columnsList.append(column)
 	return columnsList
+
+class ColumnInfo:
+	type = ''
+	className = ''
+	attributeName = ''
+	source = ''
+	target = ''
+	
+def readColumnInfo(column):
+	"""
+	Return informations about the column passed in parameter
+	"""
+	columnType = column.find('parent')
+	
+	className = table.get('name')
+	columnInfo = ColumnInfo()
+	if columnType is None:
+		# 'columnType' is an attribute
+		attributeName = column.get('name')
+
+		# --> Build attribute
+		# level 1: all entries are simple attributes
+		print '\tCreate level1 attribute: '+attributeName+' in '+className
+		columnInfo.type = 'attribute'
+		columnInfo.className = className
+		columnInfo.attributeName = attributeName
+
+	else:
+		# 'columnType' is a foreign key hence represented by an association
+		source = columnType.get('column')
+		
+		referencedClass = columnType.get('table')
+		referencedClass_column = columnType.get('foreignKey')
+		
+		ref = root.find("tables/table[@name='"+referencedClass+"']")
+		
+		# find the column with the right foreign key
+		ref_column = ref.find("column/child[@foreignKey='"+referencedClass_column+"']/..")
+		
+		destination = ref_column.get('name')
+
+		# --> Build association
+		print '\tCreate level1 association: '+className+' <--> '+referencedClass
+		print '\tCreate level2 association: '+className+' --> '+referencedClass
+		print '\tCreate level3 association: '+className+'.'+source+' --> '+referencedClass+"."+destination
+
+		columnInfo.type = 'association'
+		columnInfo.source = className
+		columnInfo.target = referencedClass
+		
+	return columnInfo
 
 def readTables():
 	"""
@@ -190,5 +211,7 @@ for table in readTables():
 	#print 'table '+table.get('name')+' '+table.get('numRows');
 	generateClass(table.get('name'))
 	for column in readColumns(table):
+		columnInfo = readColumnInfo(column)
+		print 'column type: '+columnInfo.type
 		#print'\tcolumn '+column.get('name')+' '+column.get('type')
 		addAttribute(column.get('name'), column.get('type'), table.get('name'))
