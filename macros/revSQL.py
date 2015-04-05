@@ -46,6 +46,7 @@ def readColumns(table):
 	return columnsList
 
 class ColumnInfo:
+	kind = ''
 	type = ''
 	className = ''
 	attributeName = ''
@@ -60,6 +61,7 @@ def readColumnInfo(column):
 	
 	className = table.get('name')
 	columnInfo = ColumnInfo()
+	columnInfo.type = column.get('type')
 	if columnType is None:
 		# 'columnType' is an attribute
 		attributeName = column.get('name')
@@ -67,7 +69,7 @@ def readColumnInfo(column):
 		# --> Build attribute
 		# level 1: all entries are simple attributes
 		print '\tCreate level1 attribute: '+attributeName+' in '+className
-		columnInfo.type = 'attribute'
+		columnInfo.kind = 'attribute'
 		columnInfo.className = className
 		columnInfo.attributeName = attributeName
 
@@ -212,6 +214,7 @@ for table in readTables():
 	generateClass(table.get('name'))
 	for column in readColumns(table):
 		columnInfo = readColumnInfo(column)
+		print 'column kind: '+columnInfo.kind
 		print 'column type: '+columnInfo.type
 		#print'\tcolumn '+column.get('name')+' '+column.get('type')
 		addAttribute(column.get('name'), column.get('type'), table.get('name'))
