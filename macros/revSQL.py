@@ -96,6 +96,23 @@ def readTables():
 #---------------------------------------------------------
 # These functions allow to generate UML from xml 
 #---------------------------------------------------------
+def cleanPackage(packageName):
+	"""
+	Delete all elements in the package packageName(String)
+	"""
+	transaction = theSession().createTransaction('clean package')
+	try:
+		packageTarget = instanceNamed(Package, packageName)
+		elements = list(packageTarget.getOwnedElement())
+
+		for element in elements:
+			element.delete()
+			
+		transaction.commit()
+	except:
+		transaction.rollback()
+		raise
+
 def basicType2UML(type):
 	"""
 	Convertion of SQL type into UML type
@@ -122,7 +139,7 @@ def basicType2UML(type):
 
 def generateClass(className):
 	"""
-	Generate a class from a table
+	Generate a class with the name className(String)
 	"""
 	transaction = theSession().createTransaction('Class creation')
 	try:
@@ -136,7 +153,7 @@ def generateClass(className):
 		
 def addAttribute(attributeName, attributeType, className):
 	"""
-	Add attributes to a class
+	Add the attributes attributeName(String) with attributeType(UMLType) to the class className(String)
 	"""
 	transaction = theSession().createTransaction('attribute adding')
 	try:
@@ -147,14 +164,31 @@ def addAttribute(attributeName, attributeType, className):
 	except:
 		transaction.rollback()
 		raise
+		
+def addAssociation(srcClassName, destClassName, destRole):
+	"""
+	Create the association from the class srcClassName(String) to the destClassName(String) with the given 
+	destination role destRole(String)
+	"""
+	transaction = theSession().createTransaction('association adding')
+	try:
+		factory = theUMLFactory()
+		src = instanceNamed(Class, srcClassName)
+		dest = instanceNamed(Class, destClassName)
+		newAssociation = factory.createAssociation(src, dest, destRole)
+		transaction.commit()
+	except:
+		transaction.rollback()
+		raise
 
 #---------------------------------------------------------
 #       				Main
 #---------------------------------------------------------
-for table in readTables():
-	# print 'table '+table.get('name')+' '+table.get('numRows');
-	pass
-	for column in readColumns(table):
-		# print'\tcolumn '+column.get('name')+' '+column.get('type')
-		pass
+cleanPackage('library2uml')
 
+for table in readTables():
+	#print 'table '+table.get('name')+' '+table.get('numRows');
+	generateClass(table.get('name'))
+	for column in readColumns(table):
+		#print'\tcolumn '+column.get('name')+' '+column.get('type')
+		addAttribute(column.get('name'), column.get('type'), table.get('name'))
