@@ -135,15 +135,16 @@ def basicType2UML(type):
 	else:
 		return basicTypes.getUNDEFINED()
 
-def generateClass(className):
+def generateClass(className, packageName):
 	"""
-	Generate a class with the name className(String)
+	Generate a class with the name className(String) with the "T" stereotype
 	"""
 	transaction = theSession().createTransaction('Class creation')
 	try:
 		factory = theUMLFactory()
-		packageTarget = instanceNamed(Package,'library2uml')
+		packageTarget = instanceNamed(Package, packageName)
 		newClass = factory.createClass(className, packageTarget)
+		newClass.addStereotype("LocalModule", "T")
 		transaction.commit()
 	except:
 		transaction.rollback()
@@ -166,7 +167,7 @@ def addAttribute(attributeName, attributeType, className):
 def addAssociation(srcClassName, destClassName, destRole):
 	"""
 	Create the association from the class srcClassName(String) to the destClassName(String) with the given 
-	destination role destRole(String)
+	destination role destRole(String) and with the "FKC" stereotype
 	"""
 	transaction = theSession().createTransaction('association adding')
 	try:
@@ -174,6 +175,7 @@ def addAssociation(srcClassName, destClassName, destRole):
 		src = instanceNamed(Class, srcClassName)
 		dest = instanceNamed(Class, destClassName)
 		newAssociation = factory.createAssociation(src, dest, destRole)
+		newAssociation.addStereotype("LocalModule", "FKC")
 		transaction.commit()
 	except:
 		transaction.rollback()
@@ -182,12 +184,13 @@ def addAssociation(srcClassName, destClassName, destRole):
 #---------------------------------------------------------
 #       				Main
 #---------------------------------------------------------
-cleanPackage('library2uml')
-
-for table in readTables():
-	#print 'table '+table.get('name')+' '+table.get('numRows');
-	generateClass(table.get('name'))
-	for column in readColumns(table):
-		#print'\tcolumn '+column.get('name')+' '+column.get('type')
-		addAttribute(column.get('name'), column.get('type'), table.get('name'))
+for element in selectedElements:
+	if isinstance(element, Package):
+		packageName = element.getName()
+		cleanPackage(packageName)
+		
+		for table in readTables():
+			generateClass(table.get('name'), packageName)
+			for column in readColumns(table):
+				addAttribute(column.get('name'), column.get('type'), table.get('name'))
 
