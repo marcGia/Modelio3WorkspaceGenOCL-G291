@@ -50,7 +50,9 @@ def readColumns(table):
 			attributeName = column.get('name')
 
 			# --> Build attribute
-			print '\tCreate attribute '+attributeName+' in '+className
+			# level 1: all entries are simple attributes
+			print '\tCreate level1 attribute: '+attributeName+' in '+className
+
 		else:
 			# 'columnType' is a foreign key hence represented by an association
 			source = columnType.get('column')
@@ -64,7 +66,7 @@ def readColumns(table):
 			ref_column = ref.find("column/child[@foreignKey='"+referencedClass_column+"']/..")
 			
 			destination = ref_column.get('name')
-			
+
 			# --> Build association
 			print '\tCreate level1 association: '+className+' <--> '+referencedClass
 			print '\tCreate level2 association: '+className+' --> '+referencedClass
@@ -150,7 +152,9 @@ def addAttribute(attributeName, attributeType, className):
 #       				Main
 #---------------------------------------------------------
 for table in readTables():
-	print 'table '+table.get('name')+' '+table.get('numRows');
+	# print 'table '+table.get('name')+' '+table.get('numRows');
+	pass
 	for column in readColumns(table):
-		print'\tcolumn '+column.get('name')+' '+column.get('type')
+		# print'\tcolumn '+column.get('name')+' '+column.get('type')
+		pass
 
