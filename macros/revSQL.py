@@ -46,6 +46,7 @@ def readColumns(table):
 	return columnsList
 
 class ColumnInfo:
+	kind = ''
 	type = ''
 	className = ''
 	attributeName = ''
@@ -60,6 +61,7 @@ def readColumnInfo(column):
 	
 	className = table.get('name')
 	columnInfo = ColumnInfo()
+	columnInfo.type = column.get('type')
 	if columnType is None:
 		# 'columnType' is an attribute
 		attributeName = column.get('name')
@@ -67,7 +69,7 @@ def readColumnInfo(column):
 		# --> Build attribute
 		# level 1: all entries are simple attributes
 		print '\tCreate level1 attribute: '+attributeName+' in '+className
-		columnInfo.type = 'attribute'
+		columnInfo.kind = 'attribute'
 		columnInfo.className = className
 		columnInfo.attributeName = attributeName
 
@@ -90,7 +92,7 @@ def readColumnInfo(column):
 		print '\tCreate level2 association: '+className+' --> '+referencedClass
 		print '\tCreate level3 association: '+className+'.'+source+' --> '+referencedClass+"."+destination
 
-		columnInfo.type = 'association'
+		columnInfo.kind = 'association'
 		columnInfo.source = className
 		columnInfo.target = referencedClass
 		
@@ -212,9 +214,17 @@ for element in selectedElements:
 		packageName = element.getName()
 		cleanPackage(packageName)
 		
+		# Creation of classes and attributes
 		for table in readTables():
 			generateClass(table.get('name'), packageName)
 			for column in readColumns(table):
 				columnInfo = readColumnInfo(column)
-				if columnInfo.type == 'attribute':
-					addAttribute(columnInfo.attributeName, column.get('type'), table.get('name'))
+				if columnInfo.kind == 'attribute':
+					addAttribute(columnInfo.attributeName, columnInfo.type, table.get('name'))
+		
+		# Creation of relations
+		for table in readTables():
+			for column in readColumns(table):
+				columnInfo = readColumnInfo(column)
+				if columnInfo.kind == 'association':
+					addAssociation(columnInfo.source, columnInfo.target, columnInfo.target+'s')
