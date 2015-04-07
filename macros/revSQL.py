@@ -119,6 +119,8 @@ def readTables():
 #---------------------------------------------------------
 # These functions allow to generate UML from xml 
 #---------------------------------------------------------
+attributeList = {} # dictionnaire python -> a chaque classe correspond une liste d'attribut
+
 def cleanPackage(packageName):
 	"""
 	Delete all elements in the package packageName(String)
@@ -184,6 +186,13 @@ def addAttribute(attributeName, attributeType, className, stereotype):
 		factory = theUMLFactory()
 		classOwner = instanceNamed(Class, className)
 		newAttribute = factory.createAttribute(attributeName, basicType2UML(attributeType), classOwner)
+		
+		if className in attributeList:
+			attributeList[className][attributeName] = newAttribute
+		else:
+			attributeList[className] = {}
+			attributeList[className][attributeName] = newAttribute
+			
 		if stereotype != '':
 			newAttribute.addStereotype("LocalModule", stereotype)
 		transaction.commit()
@@ -208,6 +217,20 @@ def addAssociation(srcClassName, destClassName, destRole):
 		transaction.rollback()
 		raise
 
+def addDependency(srcAttribute, destAttribute):
+	"""
+	Create a dependency between the source attribute and the destination attribute with the "FKC" stereotype
+	"""
+	transaction = theSession().createTransaction('dependency adding')
+	try:
+		factory = theUMLFactory()
+		factory.createDependency(srcAttribute, destAttribute, 'LocalModule', 'FKC')
+		transaction.commit()
+	except:
+		transaction.rollback()
+		raise
+	
+	
 #---------------------------------------------------------
 #       				Main
 #---------------------------------------------------------
@@ -231,7 +254,9 @@ def main():
 				for column in readColumns(table):
 					columnInfo = readColumnInfo(table, column)
 					if columnInfo.kind == 'association':
-						addAssociation(columnInfo.classSource, columnInfo.classTarget, columnInfo.target)
+						# addAssociation(columnInfo.classSource, columnInfo.classTarget, columnInfo.target)
+						print columnInfo.classSource + '::' +  columnInfo.source + ' ---> ' + columnInfo.classTarget + '::' +  columnInfo.target
+						addDependency(attributeList[columnInfo.classSource][columnInfo.source], attributeList[columnInfo.classTarget][columnInfo.target])
 			
 			print '\nXML converted'
 		else:
