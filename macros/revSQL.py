@@ -198,9 +198,6 @@ def addAttribute(attributeName, attributeType, className, stereotype):
 			attributeList[className] = {}
 			attributeList[className][attributeName] = newAttribute
 		
-		print className+"<>"+attributeName+ " --> "
-		print attributeList[className][attributeName]
-		
 		if stereotype != '':
 			newAttribute.addStereotype("LocalModule", stereotype)
 		transaction.commit()
@@ -263,7 +260,6 @@ def main():
 					columnInfo = readColumnInfo(table, column)
 					if columnInfo.kind == 'association':
 						# addAssociation(columnInfo.classSource, columnInfo.classTarget, columnInfo.target)
-						print columnInfo.classSource + '::' +  columnInfo.source + ' ---> ' + columnInfo.classTarget + '::' +  columnInfo.target
 						addDependency(attributeList[columnInfo.classSource][columnInfo.source], attributeList[columnInfo.classTarget][columnInfo.target])
 
 			print '\nXML converted'
