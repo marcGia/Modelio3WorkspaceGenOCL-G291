@@ -54,7 +54,7 @@ class ColumnInfo:
 	source = ''
 	target = ''
 	
-def readColumnInfo(column):
+def readColumnInfo(table, column):
 	"""
 	Return informations about the column passed in parameter
 	"""
@@ -67,7 +67,7 @@ def readColumnInfo(column):
 		# 'columnType' is an attribute
 		attributeName = column.get('name')
 		
-		primaryKey = root.find("tables/table/primaryKey[@column='"+attributeName+"']")
+		primaryKey = table.find("primaryKey[@column='"+attributeName+"']")
 		
 		if primaryKey is None:
 			columnInfo.stereotype = ''
@@ -222,14 +222,14 @@ def main():
 				print 'creation of table ' + table.get('name')
 				generateClass(table.get('name'), packageName)
 				for column in readColumns(table):
-					columnInfo = readColumnInfo(column)
+					columnInfo = readColumnInfo(table, column)
 					if columnInfo.kind == 'attribute':
 						addAttribute(columnInfo.attributeName, columnInfo.type, table.get('name'), columnInfo.stereotype)
 			
 			# Creation of relations
 			for table in readTables():
 				for column in readColumns(table):
-					columnInfo = readColumnInfo(column)
+					columnInfo = readColumnInfo(table, column)
 					if columnInfo.kind == 'association':
 						addAssociation(columnInfo.classSource, columnInfo.classTarget, columnInfo.target)
 			
