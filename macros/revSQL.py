@@ -46,8 +46,7 @@ def readColumns(table):
 	return columnsList
 
 class ColumnInfo:
-	isPK = False
-	isFK = False
+	stereotype = ''
 	kind = ''
 	type = ''
 	className = ''
@@ -60,9 +59,7 @@ def readColumnInfo(column):
 	Return informations about the column passed in parameter
 	"""
 	columnType = column.find('parent')
-	
 	className = table.get('name')
-	
 	columnInfo = ColumnInfo()
 	
 	columnInfo.type = column.get('type')
@@ -73,25 +70,22 @@ def readColumnInfo(column):
 		primaryKey = root.find("tables/table/primaryKey[@column='"+attributeName+"']")
 		
 		if primaryKey is None:
-			columnInfo.isPK = False
+			columnInfo.stereotype = ''
 		else:
-			columnInfo.isPK = True
+			columnInfo.stereotype = 'PK'
 			
 		# --> Build attribute
-		# level 1: all entries are simple attributes
-		print '\tCreate level1 attribute: '+attributeName+' in '+className
 		columnInfo.kind = 'attribute'
 		columnInfo.className = className
 		columnInfo.attributeName = attributeName
 
 	else:
 		# 'columnType' is a foreign key hence represented by an association
-		columnInfo.isFK = True
+		columnInfo.stereotype = 'FK'
 		source = columnType.get('column')
 		
 		referencedClass = columnType.get('table')
 		referencedClass_column = columnType.get('foreignKey')
-		
 		ref = root.find("tables/table[@name='"+referencedClass+"']")
 		
 		# find the column with the right foreign key
@@ -100,10 +94,6 @@ def readColumnInfo(column):
 		destination = ref_column.get('name')
 
 		# --> Build association
-		print '\tCreate level1 association: '+className+' <--> '+referencedClass
-		print '\tCreate level2 association: '+className+' --> '+referencedClass
-		print '\tCreate level3 association: '+className+'.'+source+' --> '+referencedClass+"."+destination
-
 		columnInfo.kind = 'association'
 		columnInfo.classSource = className
 		columnInfo.source = source
@@ -120,10 +110,6 @@ def readTables():
 	for table in root.findall('tables/table'):
 		className = table.get('name')
 		tablesList.append(table)
-
-		# --> Build class
-		print 'Create class '+className
-
 		readColumns(table)
 		
 	return tablesList
@@ -189,15 +175,17 @@ def generateClass(className, packageName):
 		transaction.rollback()
 		raise
 		
-def addAttribute(attributeName, attributeType, className):
+def addAttribute(attributeName, attributeType, className, stereotype):
 	"""
-	Add the attributes attributeName(String) with attributeType(UMLType) to the class className(String)
+	Add the attributes attributeName(String) with attributeType(UMLType) to the class className(String) and with the stereotype stereotype
 	"""
 	transaction = theSession().createTransaction('attribute adding')
 	try:
 		factory = theUMLFactory()
 		classOwner = instanceNamed(Class, className)
 		newAttribute = factory.createAttribute(attributeName, basicType2UML(attributeType), classOwner)
+		if stereotype != '':
+			newAttribute.addStereotype("LocalModule", stereotype)
 		transaction.commit()
 	except:
 		transaction.rollback()
@@ -223,26 +211,30 @@ def addAssociation(srcClassName, destClassName, destRole):
 #---------------------------------------------------------
 #       				Main
 #---------------------------------------------------------
-for element in selectedElements:
-	if isinstance(element, Package):
-		packageName = element.getName()
-		cleanPackage(packageName)
-		
-		# Creation of classes and attributes
-		for table in readTables():
-			generateClass(table.get('name'), packageName)
-			for column in readColumns(table):
-				columnInfo = readColumnInfo(column)
-				if columnInfo.kind == 'attribute':
-					addAttribute(columnInfo.attributeName, columnInfo.type, table.get('name'))
-		
-		# Creation of relations
-		for table in readTables():
-			for column in readColumns(table):
-				columnInfo = readColumnInfo(column)
-				if columnInfo.kind == 'association':
-					addAssociation(columnInfo.classSource, columnInfo.classTarget, columnInfo.classTarget+'s')
-				if columnInfo.isPK:
-					print 'PRIMARY KEY!!'
-				if columnInfo.isFK:
-					print' FOREIGN KEY!!'
+def main():
+	for element in selectedElements:
+		if isinstance(element, Package):
+			packageName = element.getName()
+			cleanPackage(packageName)
+			
+			# Creation of classes and attributes
+			for table in readTables():
+				print 'creation of table ' + table.get('name')
+				generateClass(table.get('name'), packageName)
+				for column in readColumns(table):
+					columnInfo = readColumnInfo(column)
+					if columnInfo.kind == 'attribute':
+						addAttribute(columnInfo.attributeName, columnInfo.type, table.get('name'), columnInfo.stereotype)
+			
+			# Creation of relations
+			for table in readTables():
+				for column in readColumns(table):
+					columnInfo = readColumnInfo(column)
+					if columnInfo.kind == 'association':
+						addAssociation(columnInfo.classSource, columnInfo.classTarget, columnInfo.target)
+			
+			print '\nXML converted'
+		else:
+			print 'please select a package where to generate classes'	
+
+main()
