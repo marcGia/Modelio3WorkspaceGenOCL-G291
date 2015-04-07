@@ -51,6 +51,8 @@ class ColumnInfo:
 	type = ''
 	className = ''
 	attributeName = ''
+	classSource = ''
+	classTarget = ''
 	source = ''
 	target = ''
 	
