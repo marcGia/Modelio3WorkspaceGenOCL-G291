@@ -65,9 +65,10 @@ def readColumnInfo(table, column):
 	columnInfo = ColumnInfo()
 	
 	columnInfo.type = column.get('type')
+	attributeName = column.get('name')
+	columnInfo.className = className
 	if columnType is None:
 		# 'columnType' is an attribute
-		attributeName = column.get('name')
 		
 		primaryKey = table.find("primaryKey[@column='"+attributeName+"']")
 		
@@ -78,14 +79,15 @@ def readColumnInfo(table, column):
 			
 		# --> Build attribute
 		columnInfo.kind = 'attribute'
-		columnInfo.className = className
 		columnInfo.attributeName = attributeName
 
 	else:
 		# 'columnType' is a foreign key hence represented by an association
 		columnInfo.stereotype = 'FK'
 		source = columnType.get('column')
-		
+
+		columnInfo.attributeName = source
+
 		referencedClass = columnType.get('table')
 		referencedClass_column = columnType.get('foreignKey')
 		ref = root.find("tables/table[@name='"+referencedClass+"']")
@@ -189,12 +191,16 @@ def addAttribute(attributeName, attributeType, className, stereotype):
 		classOwner = instanceNamed(Class, className)
 		newAttribute = factory.createAttribute(attributeName, basicType2UML(attributeType), classOwner)
 		
+		
 		if className in attributeList:
 			attributeList[className][attributeName] = newAttribute
 		else:
 			attributeList[className] = {}
 			attributeList[className][attributeName] = newAttribute
-			
+		
+		print className+"<>"+attributeName+ " --> "
+		print attributeList[className][attributeName]
+		
 		if stereotype != '':
 			newAttribute.addStereotype("LocalModule", stereotype)
 		transaction.commit()
@@ -248,8 +254,8 @@ def main():
 				generateClass(table.get('name'), packageName)
 				for column in readColumns(table):
 					columnInfo = readColumnInfo(table, column)
-					if columnInfo.kind == 'attribute':
-						addAttribute(columnInfo.attributeName, columnInfo.type, table.get('name'), columnInfo.stereotype)
+					# if columnInfo.kind == 'attribute' or columnInfo.stereotype == 'FK':
+					addAttribute(columnInfo.attributeName, columnInfo.type, table.get('name'), columnInfo.stereotype)
 			
 			# Creation of relations
 			for table in readTables():
@@ -259,7 +265,7 @@ def main():
 						# addAssociation(columnInfo.classSource, columnInfo.classTarget, columnInfo.target)
 						print columnInfo.classSource + '::' +  columnInfo.source + ' ---> ' + columnInfo.classTarget + '::' +  columnInfo.target
 						addDependency(attributeList[columnInfo.classSource][columnInfo.source], attributeList[columnInfo.classTarget][columnInfo.target])
-			
+
 			print '\nXML converted'
 		else:
 			print 'please select a package where to generate classes'	
