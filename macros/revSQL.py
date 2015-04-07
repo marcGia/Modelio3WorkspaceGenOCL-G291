@@ -46,6 +46,8 @@ def readColumns(table):
 	return columnsList
 
 class ColumnInfo:
+	isPK = False
+	isFK = False
 	kind = ''
 	type = ''
 	className = ''
@@ -60,12 +62,21 @@ def readColumnInfo(column):
 	columnType = column.find('parent')
 	
 	className = table.get('name')
+	
 	columnInfo = ColumnInfo()
+	
 	columnInfo.type = column.get('type')
 	if columnType is None:
 		# 'columnType' is an attribute
 		attributeName = column.get('name')
-
+		
+		primaryKey = root.find("tables/table/primaryKey[@column='"+attributeName+"']")
+		
+		if primaryKey is None:
+			columnInfo.isPK = False
+		else:
+			columnInfo.isPK = True
+			
 		# --> Build attribute
 		# level 1: all entries are simple attributes
 		print '\tCreate level1 attribute: '+attributeName+' in '+className
@@ -75,6 +86,7 @@ def readColumnInfo(column):
 
 	else:
 		# 'columnType' is a foreign key hence represented by an association
+		columnInfo.isFK = True
 		source = columnType.get('column')
 		
 		referencedClass = columnType.get('table')
@@ -93,8 +105,10 @@ def readColumnInfo(column):
 		print '\tCreate level3 association: '+className+'.'+source+' --> '+referencedClass+"."+destination
 
 		columnInfo.kind = 'association'
-		columnInfo.source = className
-		columnInfo.target = referencedClass
+		columnInfo.classSource = className
+		columnInfo.source = source
+		columnInfo.classTarget = referencedClass
+		columnInfo.target = destination
 		
 	return columnInfo
 
@@ -227,4 +241,8 @@ for element in selectedElements:
 			for column in readColumns(table):
 				columnInfo = readColumnInfo(column)
 				if columnInfo.kind == 'association':
-					addAssociation(columnInfo.source, columnInfo.target, columnInfo.target+'s')
+					addAssociation(columnInfo.classSource, columnInfo.classTarget, columnInfo.classTarget+'s')
+				if columnInfo.isPK:
+					print 'PRIMARY KEY!!'
+				if columnInfo.isFK:
+					print' FOREIGN KEY!!'
