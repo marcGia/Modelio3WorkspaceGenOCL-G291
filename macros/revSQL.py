@@ -15,11 +15,19 @@
 
 Current state of the generator
 ----------------------------------
-
+The generator generate a rational model from an xml file representing an SQL database. 
+- Tables are represented by classes
+- column are represented by attributes
+- attributes with 'PK' stereotype represent a primary key
+- attributes with 'FK' stereotype represent a foreign key
+- relations between tables are represented by dependencies between two attributes of two classes
 
 Current state of the tests
 --------------------------
-
+The generator has been made at different levels (like in the CyberBibliotheque). The generator became 
+more and more precise.
+The rational model for library.xml is generated with success.
+Results are the same than the libraryRationnalModel package in the CyberBibliotheque project.
 
 Observations
 ------------
